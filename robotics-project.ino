@@ -40,6 +40,15 @@ void follow_line(){
   int edgeLeft   = sparki.edgeLeft();   // measure the left edge IR sensor
   int edgeRight  = sparki.edgeRight();  // measure the right edge IR sensor
   
+  sparki.dist = sparki.ping();
+  if(sparki_dist == 4){
+    sparki.RGB(RGB_BLUE);
+    sparki.moveStop();
+    sparki.gripperClose(); // close the robot's gripper
+    delay(1000);   
+    }
+  
+  
   if ( lineLeft < threshold ) // if line is below left line sensor
   {  
     sparki.moveLeft(); // turn left
