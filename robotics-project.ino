@@ -8,15 +8,20 @@ int go_to_peg_1 = 1;
 int go_to_peg_2 = 2;
 int go_to_peg_3 = 3;
 
-int decision = 1;
-int decision_array[2] = {0,0};
+int decision = 2;
+int decision_array[3] = {0,0,0};
+bool sparki_grip  = 0;
 
 void peg_decide();
 void updateSensorReadings();
 void follow_line();
+void drop_block();
 
 int left = 0, center = 0, right = 0;
 int sparki_dist = 100;
+
+int block = 0;
+int block1 = 1;
 
 void setup() {
   // put your setup code here, to run once:
@@ -31,24 +36,16 @@ void loop() {
 
 void follow_line(){
   // put your main code here, to run repeatedly:
+  sparki_dist = sparki.ping();
   sparki.RGB(RGB_RED);
-  int threshold = 300;
+  int threshold = 200;
  
   int lineLeft   = sparki.lineLeft();   // measure the left IR sensor
   int lineCenter = sparki.lineCenter(); // measure the center IR sensor
   int lineRight  = sparki.lineRight();  // measure the right IR sensor
   int edgeLeft   = sparki.edgeLeft();   // measure the left edge IR sensor
   int edgeRight  = sparki.edgeRight();  // measure the right edge IR sensor
-  
-  sparki.dist = sparki.ping();
-  if(sparki_dist == 4){
-    sparki.RGB(RGB_BLUE);
-    sparki.moveStop();
-    sparki.gripperClose(); // close the robot's gripper
-    delay(1000);   
-    }
-  
-  
+    
   if ( lineLeft < threshold ) // if line is below left line sensor
   {  
     sparki.moveLeft(); // turn left
@@ -72,51 +69,59 @@ void follow_line(){
       peg_decide();
       }
     else if((decision_array[0] == 1) && decision_array[1] == 0){
-      //sparki.moveStop();
-      //delay(1000);
-      //TO DO: call a function to reset Odometry
-      //
-      //
-      //
-      //   
-      pick_up_box();   
-      center = sparki.ping(); // get the distance from the distance sensor
-      updateSensorReadings(); // refresh the screen
-      }
+      decision_array[1] = 1;
+      sparki.RGB(RGB_BLUE);
+      sparki.moveForward();
+      delay(500);
+     }
+    else if((decision_array[0] == 1) && decision_array[1] == 1 && decision_array[2] == 1){
+      sparki.RGB(RGB_ORANGE);
+      sparki.moveForward();
+      delay(500);
+      drop_block();
+      sparki.moveBackward();
+      delay(1500);
+      sparki.moveRight(180);
+//      sparki.moveStop();
+//      delay(10000);
+     }
+    
   } 
- 
- /* sparki.clearLCD(); // wipe the screen
- 
-  sparki.print("Line Left: "); // show left line sensor on screen
-  sparki.println(lineLeft);
- 
-  sparki.print("Line Center: "); // show center line sensor on screen
-  sparki.println(lineCenter);
- 
-  sparki.print("Line Right: "); // show right line sensor on screen
-  sparki.println(lineRight);
- 
-  sparki.updateLCD(); // display all of the information written to the screen
- 
-  delay(100); // wait 0.1 seconds*/
-  }
-
-void pick_up_box(){
-  sparki.RGB(RGB_BLUE);
   
-  if(sparki_dist == 3){
-    sparki.RGB(RGB_BLUE);
-    sparki.moveStop();
-    sparki.gripperClose(); // close the robot's gripper
-    delay(1000);   
-    }
-  }
+  if(sparki_dist < 4.2 && sparki_dist != -1 && sparki_grip == 0){
+        sparki_grip = 1;
+        sparki.moveStop();
+        delay(1000);
+        sparki.gripperClose(); // close the robot's gripper
+        delay(2500);   
+        sparki.gripperStop(); 
+        sparki.moveBackward();
+        delay(1000);
+        sparki.moveRight(180);
+      }
 
+   if( (sparki_grip == 1) && (lineCenter < threshold) && (edgeLeft < threshold) && (edgeRight < threshold)){
+    decision_array[2] = 1;
+    sparki_is_at_peg_2 = 1;
+    sparki_is_at_peg_3 = 0;
+    decision = 1;
+    block = 1;
+    peg_decide(); 
+    }
+
+
+    
+  sparki.clearLCD(); // erase the lcd
+  sparki.print("Distance = ");
+  sparki.println(sparki_dist); // print the distance from when Sparki's head is facing center
+  sparki.updateLCD(); // write the new LCD values to the screen
+  
+}
 
 void peg_decide(){
   sparki.RGB(RGB_GREEN);
   decision_array[0] == 1;
-  
+  sparki_dist = sparki.ping();
   if(sparki_is_at_peg_1){
     if(decision == go_to_peg_2)
     {
@@ -138,7 +143,7 @@ void peg_decide(){
     if(decision == go_to_peg_1)
     {
        sparki.moveForward();
-       delay(5000);
+       delay(6000);
        sparki.moveLeft();
        delay(500);
     }
@@ -162,12 +167,29 @@ void peg_decide(){
     else if(decision == go_to_peg_2)
     {
       sparki.moveForward();
-      delay(4800);
+      delay(6500);
       sparki.moveLeft();
-      delay(2200);
+      delay(2600);
+      sparki.moveForward();
+      delay(500);
     }
   }
 }
+
+void drop_block(){
+  
+  if(block == block1){
+    sparki.moveForward(20);
+    sparki.moveStop();
+    delay(1000);
+    sparki.gripperOpen(); // close the robot's gripper
+    delay(2000); 
+    
+    }
+
+
+  
+  }
 
 void updateSensorReadings()
 {
