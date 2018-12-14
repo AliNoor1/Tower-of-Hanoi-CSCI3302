@@ -2,12 +2,35 @@
 
 import math 
 import numpy as np
+import cv2
 solution = []
 status = []
 store= []
 def vision():
 	#put vision code here
-	return([[1,2,3,4], [], [5]])
+	
+	
+	block1 = 2
+	block2 = 2
+	block3 = 2
+	block4 = 1
+	block5 = 3
+
+	blocks = [("1", block1), ("2", block2), ("3", block3), ("4", block4), ("5", block5)]
+	peg1 = []
+	peg2 = []
+	peg3 = []
+	for eachBlock in blocks:#format blockData to pegs
+		if eachBlock[1] == 1:
+			peg1.append(eachBlock[0])
+		elif eachBlock[1] == 2:
+			peg2.append(eachBlock[0])
+		elif eachBlock[1] == 3:
+			peg3.append(eachBlock[0])
+		else:
+			print("error with assigning blocks to pegs")
+	print(peg1, peg2, peg3)
+	return([peg1, peg2, peg3])
 
 def display(index):
 	print("Initial status:", store[index])
